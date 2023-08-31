@@ -2,7 +2,37 @@ import { createContext, useState, useEffect } from "react"
 
 export const ShoppingCartContext = createContext()
 
+export const initializeLocalStorage = () => {
+    const accountInLocalStorage = localStorage.getItem('account')
+    const signOutInLocalStorage = localStorage.getItem('sign-out')
+    let parsedAccount
+    let parsedSignOut
+
+    if (!accountInLocalStorage) {
+        localStorage.setItem('account', JSON.stringify({}))
+        parsedAccount = {}
+    } else {
+        parsedAccount = JSON.parse(accountInLocalStorage)
+    }
+
+    if (!signOutInLocalStorage) {
+        localStorage.setItem('sign-out', JSON.stringify({}))
+        parsedSignOut = {}
+    } else {
+        parsedSignOut = JSON.parse(signOutInLocalStorage)
+    }
+
+
+}
+
+
 export const ShoppingCartProvider = ({ children }) =>{
+    // My account
+    const [account, setAccount] = useState({})
+
+    // Sign out
+    const [signOut, setSignOut] = useState(false)
+
     // shopping cart count
     const [count, setCount] = useState(0)
 
@@ -34,6 +64,7 @@ export const ShoppingCartProvider = ({ children }) =>{
 
     // Get products by category 
     const [searchCategory, setSearchCategory] = useState(null)
+    
     useEffect(() => {
         fetch('https://dummyjson.com/products')
         .then(response => response.json())
@@ -69,11 +100,15 @@ export const ShoppingCartProvider = ({ children }) =>{
         if (!searchProduct && searchCategory) setFilteredItems(filterBy('BY_CATEGORY',items,searchProduct, searchCategory))
         if (!searchProduct && !searchCategory) setFilteredItems(filterBy(null,items,searchProduct, searchCategory))
     }, [items, searchProduct, searchCategory])
-    
+
 
 
     return (
         <ShoppingCartContext.Provider value={{
+            account,
+            setAccount,
+            signOut,
+            setSignOut,
             count,
             setCount,
             openProductDetail,
